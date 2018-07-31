@@ -196,3 +196,150 @@ litlog created tasks/task-1 "added plan step-1 to step-4"
 git add sites
 git commit -m "added request-1 spec and task-1 plan step-1 to step-4"
 ```
+1. Follow [part-six](https://next.gatsbyjs.org/tutorial/part-six/) of the [Gatsby.js Tutorial] so <g-link to="/litlog/">litlog</g-link> pages can be listed. Structure *gatsby-node.js* more like [gatsby-starter-hero-blog](https://github.com/greglobinski/gatsby-starter-hero-blog) so other content types can be added later.
+```bash
+export LITLOG_SITE=site-1
+diff package.json sites/site-1/files/package.json
+litlog updating tasks/task1
+npm install --save gatsby-transformer-remark
+git apply << EOF
+>--- a/sites/site-1/files/package.json
+>+++ b/sites/site-1/files/package.json
+>@@ -6,6 +6,7 @@
+>   "dependencies": {
+>     "gatsby": "next",
+>     "gatsby-plugin-react-helmet": "next",
+>+    "gatsby-transformer-remark": "^1.7.44",
+>     "react": "^16.4.1",
+>     "react-dom": "^16.4.1",
+>     "react-helmet": "^5.2.0"
+EOF
+cp package-lock.json sites/$LITLOG_SITE/files/
+litlog updated files/package.json "ran 'npm install --save gatsby-transformer-remark' (following [part-six](https://next.gatsbyjs.org/tutorial/part-six/) of the [Gatsby.js Tutorial])"
+# commit these files because I'm going to run another npm install
+git add sites
+git commit -m "ran 'npm install --save gatsby-transformer-remark'"
+npm install --save gatsby-source-filesystem
+git apply << EOF
+>--- a/sites/site-1/files/package.json
+>+++ b/sites/site-1/files/package.json
+>@@ -6,6 +6,7 @@
+>   "dependencies": {
+>     "gatsby": "next",
+>     "gatsby-plugin-react-helmet": "next",
+>+    "gatsby-source-filesystem": "^1.5.39",
+>     "gatsby-transformer-remark": "^1.7.44",
+>     "react": "^16.4.1",
+>     "react-dom": "^16.4.1",
+EOF
+cp package-lock.json sites/$LITLOG_SITE/files/
+litlog updated files/package.json "ran 'npm install --save gatsby-source-filesystem' (following [part-six](https://next.gatsbyjs.org/tutorial/part-six/) of the [Gatsby.js Tutorial])"
+litlog updating files/gatsby-config.js
+# update file
+git apply << EOF
+>--- a/sites/site-1/files/gatsby-config.js
+>+++ a/sites/site-1/files/gatsby-config.js
+>@@ -2,6 +2,16 @@ module.exports = {
+>   siteMetadata: {
+>     title: 'Gatsby Litlog Starter',
+>   },
+>-  plugins: ['gatsby-plugin-react-helmet'],
+>+  plugins: [
+>+    'gatsby-plugin-react-helmet',
+>+      {
+>+        resolve: 'gatsby-source-filesystem',
+>+        options: {
+>+          name: 'litlog',
+>+          path: \`\${__dirname}/src/pages/litlog\`,
+>+        },
+>+      },
+>+      'gatsby-transformer-remark',
+>+  ],
+>   pathPrefix: '/gatsby-starter-litlog'
+> }
+EOF
+litlog updated files/gatsby-config.js "following [part-six](https://next.gatsbyjs.org/tutorial/part-six/) of the [Gatsby.js Tutorial]"
+# restart dev server
+npm run site-develop
+```
+Check out this query in [GraphiQL](http://localhost:8000/___graphql):
+```graphql
+{
+  allMarkdownRemark(sort: {fields: [fileAbsolutePath] }) {
+    totalCount
+    edges {
+      node {
+        id
+        fileAbsolutePath
+        frontmatter {
+          title
+        }
+      }
+    }
+  }
+}
+```
+Create the index page for the <g-link to="/litlog/">litlog</g-link> folder folder. Right now it will just list the *fileAbsolutePath* of the markdown files and the *title* from the frontmatter.
+```bash
+litlog creating files/src/pages/litlog/index.js
+# edit file and check out http://localhost:8000/litlog/
+touch __blank
+git apply << EOF
+>--- a/__blank
+>+++ b/sites/common/files/src/pages/litlog/index.js
+>@@ -0,0 +1,47 @@
+>+import React from 'react'
+>+import Layout from '../../components/layout'
+>+import { graphql } from 'gatsby'
+>+
+>+export default ({ data }) => {
+>+  return (
+>+    <Layout>
+>+      <table>
+>+        <thead>
+>+          <tr>
+>+            <th>fileAbsolutePath</th>
+>+            <th>title</th>
+>+          </tr>
+>+        </thead>
+>+        <tbody>
+>+          {data.allMarkdownRemark.edges.map(({ node }, index) =>
+>+            <tr key={index}>
+>+              <td>
+>+                {node.fileAbsolutePath}
+>+              </td>
+>+              <td>
+>+                {node.frontmatter.title}
+>+              </td>
+>+            </tr>
+>+          )}
+>+        </tbody>
+>+      </table>
+>+    </Layout>
+>+  );
+>+};
+>+
+>+export const query = graphql\`
+>+  {
+>+    allMarkdownRemark(sort: { fields: [fileAbsolutePath] }) {
+>+      totalCount
+>+      edges {
+>+        node {
+>+          id
+>+          fileAbsolutePath
+>+          frontmatter {
+>+            title
+>+          }
+>+        }
+>+      }
+>+    }
+>+  }
+>+\`;
+EOF
+rm __blank
+cp sites/common/files/src/pages/litlog/index.js sites/site-1/files/src/pages/litlog/
+litlog created files/src/pages/litlog/index.js "following [part-six](https://next.gatsbyjs.org/tutorial/part-six/) of the [Gatsby.js Tutorial], simplified to return fewer/different fields and use a table"
+litlog updated tasks/task-1 "added task-1 plan step-5"
+git add sites
+git commit -m "added task-1 plan step-5"
+```
