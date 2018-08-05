@@ -44,7 +44,7 @@ npm install
 gatsby develop
 # update .gitignore for packages
 cat << EOF >> .gitignore
-
+#
 # Built source for packages
 packages/*/lib
 EOF
@@ -112,7 +112,7 @@ git commit -m "initial setup from gatsby-starter-default#v2"
 #
 # modify .gitignore
 cat << EOF >> .gitignore
-
+#
 # Site files
 /*
 !LICENSE
@@ -342,4 +342,228 @@ litlog created files/src/pages/litlog/index.js "following [part-six](https://nex
 litlog updated tasks/task-1 "added task-1 plan step-5"
 git add sites
 git commit -m "added task-1 plan step-5"
+```
+1. Follow [part-seven](https://next.gatsbyjs.org/tutorial/part-seven/) of the [Gatsby.js Tutorial] and [gatsby-starter-hero-blog](https://github.com/greglobinski/gatsby-starter-hero-blog) so <g-link to="/litlog/">litlog</g-link> pages can be viewed. First create <g-link to="/litlog/files/gatsby-node.js">gatsby-node.js</g-link> *gatsby-node.js* except use *litlog-page.js* instead of *blog-post.js*. Then create <g-link to="/litlog/files/src/templates/litlog-page.js">litlog-page.js</g-link>. Modify <g-link to="/litlog/files/src/pages/litlog/index.js">the litlog index page</g-link> to add *import { Link } from "gatsby"*, replace *fileAbsolutePath* with *link*, *{node.fileAbsolutePath}* with *<Link to={node.fields.slug}>{node.fields.slug}</Link>*, and change the graphql to add the slug.
+```bash
+litlog updating tasks/task-1
+litlog updating files/gatsby-node.js
+# update file
+git apply << EOF
+>--- a/sites/site-1/files/gatsby-node.js
+>+++ a/sites/site-1/files/gatsby-node.js
+>@@ -4,4 +4,55 @@
+>  * See: https://www.gatsbyjs.org/docs/node-apis/
+>  */
+> 
+>-// You can delete this file if you're not using it
+>+const path = require('path')
+>+const { createFilePath } = require('gatsby-source-filesystem')
+>+
+>+exports.onCreateNode = ({ node, getNode, actions }) => {
+>+  const { createNodeField } = actions
+>+  if (node.internal.type === 'MarkdownRemark') {
+>+    const slug = createFilePath({ node, getNode, basePath: 'pages' })
+>+    createNodeField({
+>+      node,
+>+      name: 'slug',
+>+      value: slug,
+>+    })
+>+  }
+>+}
+>+
+>+exports.createPages = ({ graphql, actions }) => {
+>+  const { createPage } = actions
+>+  return new Promise((resolve, reject) => {
+>+    const litlogPageTemplate = path.resolve('./src/templates/litlog-page.js');
+>+    graphql(\`
+>+      {
+>+        allMarkdownRemark(
+>+          filter: { fileAbsolutePath: { regex: "/src\/pages\/litlog/" } }
+>+        ) {
+>+          edges {
+>+            node {
+>+              fileAbsolutePath
+>+              fields {
+>+                slug
+>+              }
+>+            }
+>+          }
+>+        }
+>+      }
+>+    \`).then(result => {
+>+      const items = result.data.allMarkdownRemark.edges;
+>+      // Create litlog pages
+>+      const litlogPages = items.filter(item => /src\/pages\/litlog/.test(item.node.fileAbsolutePath));
+>+      litlogPages.forEach(({ node }) => {
+>+        const slug = node.fields.slug;
+>+        createPage({
+>+          path: slug,
+>+          component: litlogPageTemplate,
+>+          context: {
+>+            slug,
+>+          },
+>+        })
+>+      })
+>+      resolve()
+>+    })
+>+  })
+>+}
+EOF
+litlog updated files/gatsby-node.js "following [part-seven](https://next.gatsbyjs.org/tutorial/part-seven/) of the [Gatsby.js Tutorial and [gatsby-starter-hero-blog](https://github.com/greglobinski/gatsby-starter-hero-blog), except using *litlog-page.js* instead of *blog-post.js*"
+litlog creating files/src/templates/litlog-page.js
+# create file
+touch __blank
+git apply << EOF
+>--- a/__blank
+>+++ b/sites/common/files/src/templates/litlog-page.js
+>@@ -0,0 +1,26 @@
+>+import React from "react"
+>+import { graphql } from "gatsby"
+>+import Layout from "../components/layout"
+>+
+>+export default ({ data }) => {
+>+  const post = data.markdownRemark
+>+  return (
+>+    <Layout>
+>+      <div>
+>+        <h1>{post.frontmatter.title}</h1>
+>+        <div dangerouslySetInnerHTML={{ __html: post.html }} />
+>+      </div>
+>+    </Layout>
+>+  )
+>+}
+>+
+>+export const query = graphql\`
+>+  query(\$slug: String!) {
+>+    markdownRemark(fields: { slug: { eq: \$slug } }) {
+>+      html
+>+      frontmatter {
+>+        title
+>+      }
+>+    }
+>+  }
+>+\`
+EOF
+rm __blank
+touch __blank
+git apply << EOF
+>--- a/__blank
+>+++ b/sites/site-1/files/src/templates/litlog-page.js
+>@@ -0,0 +1,26 @@
+>+import React from "react"
+>+import { graphql } from "gatsby"
+>+import Layout from "../components/layout"
+>+
+>+export default ({ data }) => {
+>+  const post = data.markdownRemark
+>+  return (
+>+    <Layout>
+>+      <div>
+>+        <h1>{post.frontmatter.title}</h1>
+>+        <div dangerouslySetInnerHTML={{ __html: post.html }} />
+>+      </div>
+>+    </Layout>
+>+  )
+>+}
+>+
+>+export const query = graphql\`
+>+  query(\$slug: String!) {
+>+    markdownRemark(fields: { slug: { eq: \$slug } }) {
+>+      html
+>+      frontmatter {
+>+        title
+>+      }
+>+    }
+>+  }
+>+\`
+EOF
+rm __blank
+litlog created files/src/templates/litlog-page.js "following [part-seven](https://next.gatsbyjs.org/tutorial/part-seven/)"
+# restart dev server
+litlog updating files/src/pages/litlog/index.js
+# edit file
+git apply << EOF
+>--- a/sites/common/files/src/pages/litlog/index.js
+>+++ b/sites/common/files/src/pages/litlog/index.js
+>@@ -1,6 +1,7 @@
+> import React from 'react'
+> import Layout from '../../components/layout'
+> import { graphql } from 'gatsby'
+>+import { Link } from 'gatsby'
+> 
+> export default ({ data }) => {
+>   return (
+>@@ -8,7 +9,7 @@ export default ({ data }) => {
+>       <table>
+>         <thead>
+>           <tr>
+>-            <th>fileAbsolutePath</th>
+>+            <th>link</th>
+>             <th>title</th>
+>           </tr>
+>         </thead>
+>@@ -16,7 +17,7 @@ export default ({ data }) => {
+>           {data.allMarkdownRemark.edges.map(({ node }, index) =>
+>             <tr key={index}>
+>               <td>
+>-                {node.fileAbsolutePath}
+>+                <Link to={node.fields.slug}>{node.fields.slug}</Link>
+>               </td>
+>               <td>
+>                 {node.frontmatter.title}
+>@@ -40,6 +41,9 @@ export const query = graphql\`
+>           frontmatter {
+>             title
+>           }
+>+          fields {
+>+            slug
+>+          }
+>         }
+>       }
+>     }
+EOF
+git apply << EOF
+>--- a/sites/site-1/files/src/pages/litlog/index.js
+>+++ b/sites/site-1/files/src/pages/litlog/index.js
+>@@ -1,6 +1,7 @@
+> import React from 'react'
+> import Layout from '../../components/layout'
+> import { graphql } from 'gatsby'
+>+import { Link } from 'gatsby'
+> 
+> export default ({ data }) => {
+>   return (
+>@@ -8,7 +9,7 @@ export default ({ data }) => {
+>       <table>
+>         <thead>
+>           <tr>
+>-            <th>fileAbsolutePath</th>
+>+            <th>link</th>
+>             <th>title</th>
+>           </tr>
+>         </thead>
+>@@ -16,7 +17,7 @@ export default ({ data }) => {
+>           {data.allMarkdownRemark.edges.map(({ node }, index) =>
+>             <tr key={index}>
+>               <td>
+>-                {node.fileAbsolutePath}
+>+                <Link to={node.fields.slug}>{node.fields.slug}</Link>
+>               </td>
+>               <td>
+>                 {node.frontmatter.title}
+>@@ -40,6 +41,9 @@ export const query = graphql\`
+>           frontmatter {
+>             title
+>           }
+>+          fields {
+>+            slug
+>+          }
+>         }
+>       }
+>     }
+EOF
+litlog updated files/src/pages/litlog/index.js "following [part-seven](https://next.gatsbyjs.org/tutorial/part-seven/) of the [Gatsby.js Tutorial], modify to get the slug in the graphql query and use in a Link"
+litlog updated tasks/task-1 "added plan step-6" 
+git add .
+git commit -m "added task-1 plan step-6"
 ```

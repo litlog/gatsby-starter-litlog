@@ -1,6 +1,7 @@
 import React from 'react'
 import Layout from '../../components/layout'
 import { graphql } from 'gatsby'
+import { Link } from 'gatsby'
 
 export default ({ data }) => {
   return (
@@ -16,7 +17,7 @@ export default ({ data }) => {
           {data.allMarkdownRemark.edges.map(({ node }, index) =>
             <tr key={index}>
               <td>
-                {node.fileAbsolutePath}
+                <Link to={node.fields.slug}>{node.fields.slug}</Link>
               </td>
               <td>
                 {node.frontmatter.title}
@@ -31,7 +32,7 @@ export default ({ data }) => {
 
 export const query = graphql`
   {
-    allMarkdownRemark(sort: { fields: [fileAbsolutePath] }) {
+    allMarkdownRemark(sort: { fields: [fileAbsolutePath], order: ASC }) {
       totalCount
       edges {
         node {
@@ -39,6 +40,9 @@ export const query = graphql`
           fileAbsolutePath
           frontmatter {
             title
+          }
+          fields {
+            slug
           }
         }
       }
