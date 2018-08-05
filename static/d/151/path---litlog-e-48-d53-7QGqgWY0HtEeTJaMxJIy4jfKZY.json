@@ -1,0 +1,1 @@
+{"errors":[{"message":"Variable \"$_v0_sort\" got invalid value {\"fields\":[\"fileAbsolutePath\"],\"order\":\"asc\"}; Expected type markdownRemarkConnectionSortOrderValues at value.order; did you mean ASC or DESC?","locations":[{"line":2,"column":3}],"path":["allMarkdownRemark"]}],"data":{"allMarkdownRemark":null},"pageContext":{}}
