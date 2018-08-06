@@ -23,10 +23,12 @@ exports.createPages = ({ graphql, actions }) => {
   const { createPage } = actions
   return new Promise((resolve, reject) => {
     const litlogPageTemplate = path.resolve('./src/templates/litlog-page.js');
+    const contentPageTemplate = path.resolve(`./src/templates/content-page.js`);
+    const contentPostTemplate = path.resolve(`./src/templates/content-post.js`);
     graphql(`
       {
         allMarkdownRemark(
-          filter: { fileAbsolutePath: { regex: "/src\/pages\/litlog/" } }
+          filter: { fileAbsolutePath: { regex: "/content\/pages/|content\/posts/|src\/pages\/litlog/" } }
         ) {
           edges {
             node {
@@ -52,6 +54,33 @@ exports.createPages = ({ graphql, actions }) => {
           },
         })
       })
+
+      // Create content pages
+      const contentPages = items.filter(item => /content\/pages/.test(item.node.fileAbsolutePath));
+      contentPages.forEach(({ node }) => {
+        const slug = node.fields.slug;
+        createPage({
+          path: slug,
+          component: contentPageTemplate,
+          context: {
+            slug,
+          },
+        })
+      })
+
+      // Create content posts
+      const contentPosts = items.filter(item => /content\/posts/.test(item.node.fileAbsolutePath));
+      contentPosts.forEach(({ node }) => {
+        const slug = node.fields.slug;
+        createPage({
+          path: slug,
+          component: contentPostTemplate,
+          context: {
+            slug,
+          },
+        })
+      })
+
       resolve()
     })
   })
