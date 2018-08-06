@@ -567,3 +567,75 @@ litlog updated tasks/task-1 "added plan step-6"
 git add .
 git commit -m "added task-1 plan step-6"
 ```
+1. Configure code and syntax highlighting with PrismJS by following [these instructions](https://next.gatsbyjs.org/packages/gatsby-remark-prismjs/)
+    1. Install prismjs
+```bash
+litlog updating tasks/task-1
+npm install --save gatsby-remark-prismjs prismjs
+git apply << EOF
+>--- a/sites/site-1/files/package.json
+>+++ b/sites/site-1/files/package.json
+>@@ -6,8 +6,10 @@
+>   "dependencies": {
+>     "gatsby": "next",
+>     "gatsby-plugin-react-helmet": "next",
+>+    "gatsby-remark-prismjs": "^2.0.5",
+>     "gatsby-source-filesystem": "^1.5.39",
+>     "gatsby-transformer-remark": "^1.7.44",
+>+    "prismjs": "^1.15.0",
+>     "react": "^16.4.1",
+>     "react-dom": "^16.4.1",
+>     "react-helmet": "^5.2.0"
+EOF
+cp package-lock.json sites/$LITLOG_SITE/files/
+litlog updated files/package.json "ran 'npm install --save gatsby-remark-prismjs prismjs' following [these instructions](https://next.gatsbyjs.org/packages/gatsby-remark-prismjs/)"
+```
+   1. Update <g-link to="/litlog/files/gatsby-config.js">gatsby-config.js</g-link>
+```bash
+litlog updating files/gatsby-config.js
+# update file
+git apply << EOF
+>--- a/sites/site-1/files/gatsby-config.js
+>+++ b/sites/site-1/files/gatsby-config.js
+>@@ -11,7 +11,12 @@ module.exports = {
+>           path: \`\${__dirname}/src/pages/litlog\`,
+>         },
+>       },
+>-      'gatsby-transformer-remark',
+>+      {
+>+        resolve: 'gatsby-transformer-remark',
+>+        options: {
+>+          plugins: ['gatsby-remark-prismjs']
+>+        }
+>+      },
+>   ],
+>   pathPrefix: '/gatsby-starter-litlog'
+> }
+EOF
+litlog updated files/gatsby-config.js "following [these instructions](https://next.gatsbyjs.org/packages/gatsby-remark-prismjs/)"
+# restart dev server
+```
+   1. Update <g-link to="/litlog/files/src/components/layout.js">components/layout.js</g-link>
+```bash
+litlog updating files/src/components/layout.js
+# update file
+git apply << EOF
+>--- a/sites/site-1/files/src/components/layout.js
+>+++ b/sites/site-1/files/src/components/layout.js
+>@@ -4,6 +4,7 @@ import Helmet from 'react-helmet'
+> import { StaticQuery, graphql } from 'gatsby'
+>
+> import Header from './header'
+>+import "prismjs/themes/prism-okaidia.css"
+> import './layout.css'
+>
+> const Layout = ({ children, data }) => (
+EOF
+litlog updated files/src/components/layout.js "following [these instructions](https://next.gatsbyjs.org/packages/gatsby-remark-prismjs/)"
+```
+   1. Check out this page. Does it look OK?
+```bash
+litlog updated tasks/task-1 "added plan step-7" 
+git add .
+git commit -m "added task-1 plan step-7"
+```
