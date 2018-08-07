@@ -3,6 +3,7 @@ module.exports = {
     title: 'Gatsby Litlog Starter',
   },
   plugins: [
+    'gatsby-plugin-netlify-cms',
     'gatsby-plugin-react-helmet',
       {
         resolve: 'gatsby-source-filesystem',

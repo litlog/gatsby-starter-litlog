@@ -731,3 +731,89 @@ litlog updated tasks/task-1 "added plan step-8"
 git add .
 git commit -m "added task-1 plan step-8"
 ```
+1. Follow [Managing Content with Netlify CMS](https://www.gatsbyjs.org/docs/netlify-cms/) to setup site with content management using [Netlify CMS](https://github.com/netlify/netlify-cms).
+    1. Configure Gatsby
+```bash
+export LITLOG_SITE=site-1
+litlog updating tasks/task-1
+npm install --save netlify-cms gatsby-plugin-netlify-cms
+git apply << EOF
+>--- a/sites/site-1/files/package.json
+>+++ b/sites/site-1/files/package.json
+>@@ -5,10 +5,12 @@
+>   "author": "Carl W. Hunt <cwhunt@litlog.io>",
+>   "dependencies": {
+>     "gatsby": "next",
+>+    "gatsby-plugin-netlify-cms": "^2.0.1",
+>     "gatsby-plugin-react-helmet": "next",
+>     "gatsby-remark-prismjs": "^2.0.5",
+>     "gatsby-source-filesystem": "^1.5.39",
+>     "gatsby-transformer-remark": "^1.7.44",
+>+    "netlify-cms": "^2.0.8",
+>     "prismjs": "^1.15.0",
+>     "react": "^16.4.1",
+>     "react-dom": "^16.4.1",
+EOF
+cp package-lock.json sites/$LITLOG_SITE/files/
+litlog updated files/package.json "ran 'npm install --save netlify-cms gatsby-plugin-netlify-cms' following [Managing Content with Netlify CMS](https://www.gatsbyjs.org/docs/netlify-cms/)"
+litlog updating files/gatsby-config.js
+git apply << EOF
+>--- a/sites/site-1/files/gatsby-config.js
+>+++ b/sites/site-1/files/gatsby-config.js
+>@@ -3,6 +3,7 @@ module.exports = {
+>     title: 'Gatsby Litlog Starter',
+>   },
+>   plugins: [
+>+    'gatsby-plugin-netlify-cms',
+>     'gatsby-plugin-react-helmet',
+>       {
+>         resolve: 'gatsby-source-filesystem',
+EOF
+litlog updated files/gatsby-config.js "following [Managing Content with Netlify CMS](https://www.gatsbyjs.org/docs/netlify-cms/)"
+litlog creating files/static/admin/config.yml
+touch __blank
+git apply << EOF
+>--- a/__blank
+>+++ b/sites/site-1/files/src/static/admin/config.yml
+>@@ -0,0 +1,26 @@
+>+backend:
+>+  name: git-gateway
+>+  repo: litlog/gatsby-starter-litlog
+>+
+>+media_folder: static/assets
+>+public_folder: assets
+>+
+>+collections:
+>+  - name: pages
+>+    label: Pages
+>+    folder: content/pages
+>+    create: true
+>+    fields:
+>+      - { name: path, label: Path }
+>+      - { name: date, label: Date, widget: date }
+>+      - { name: title, label: Title }
+>+      - { name: body, label: Body, widget: markdown }
+>+  - name: posts
+>+    label: Posts
+>+    folder: content/posts
+>+    create: true
+>+    fields:
+>+      - { name: path, label: Path }
+>+      - { name: date, label: Date, widget: date }
+>+      - { name: title, label: Title }
+>+      - { name: body, label: Body, widget: markdown }
+EOF
+rm __blank
+litlog created files/static/admin/config.yml "following [Managing Content with Netlify CMS](https://www.gatsbyjs.org/docs/netlify-cms/)"
+litlog updated tasks/task-1 "added plan step-9"
+git add .
+git commit -m "added task-1 plan step-9"
+```
+    1. Configure Netlify
+        * Set build command as `cp sites/$LITLOG_SITE/files/package* . && npm install && npm run build`.
+        * Set environment variable LITLOG_SITE.
+        * Enable Identify on Site Settings
+           * Invite Only Registration
+           * Github External Provider (default configuration)
+        * Identity tab
+           * Invite users
